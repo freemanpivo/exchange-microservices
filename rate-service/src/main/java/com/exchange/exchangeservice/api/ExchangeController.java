@@ -17,6 +17,7 @@ public class ExchangeController {
 	@Autowired
 	private ExchangeValueRepository repository;
 
+	// TODO: Extract this method to a controller. At api layer we must handle the responses.
 	@GetMapping("/currency-exchange/from/{fromCurrency}/to/{toCurrency}")
 	public ExchangeValue retrieveExchangeValue(@PathVariable String fromCurrency, @PathVariable String toCurrency) {
 		ExchangeValue exchangeValue = repository.findByFromAndTo(fromCurrency, toCurrency);
