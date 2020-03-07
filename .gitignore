@@ -25,6 +25,8 @@ local.properties
 .settings/
 .loadpath
 .recommenders
+conversion-service/src/main/java/META-INF/
+rate-service/src/main/java/META-INF/
 
 ### IntelliJ IDEA ###
 .idea
