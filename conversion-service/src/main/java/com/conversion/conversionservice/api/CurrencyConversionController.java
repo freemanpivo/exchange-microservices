@@ -3,35 +3,39 @@ package com.conversion.conversionservice.api;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
-
 import com.conversion.conversionservice.models.CurrencyConversion;
+import com.conversion.conversionservice.proxies.ExchangeApiProxy;
 
 @RestController
 public class CurrencyConversionController {
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+  private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@GetMapping("/currency-converter/from/{from}/to/{to}/quantity/{quantity}")
-	public CurrencyConversion convertCurrency(@PathVariable String from, @PathVariable String to,
-			@PathVariable BigDecimal quantity) {
+  @Autowired
+  private ExchangeApiProxy proxy;
 
-		Map<String, String> uriVariables = new HashMap<>();
-		uriVariables.put("from", from);
-		uriVariables.put("to", to);
+  @GetMapping("/")
+  public String testSystem() {
+    return "It's Alive";
+  }
 
-		ResponseEntity<CurrencyConversion> responseEntity = new RestTemplate().getForEntity(
-				"http://localhost:8000/currency-exchange/from/{from}/to/{to}", CurrencyConversion.class, uriVariables);
+  @GetMapping("/currency-converter/from/{from}/to/{to}/quantity/{quantity}")
+  public CurrencyConversion convertCurrency(@PathVariable String from, @PathVariable String to,
+      @PathVariable BigDecimal quantity) {
 
-		CurrencyConversion response = responseEntity.getBody();
+    Map<String, String> uriVariables = new HashMap<>();
+    uriVariables.put("from", from);
+    uriVariables.put("to", to);
 
-		return new CurrencyConversion(from, to, response.getConversionMultiple(), quantity,
-				quantity.multiply(response.getConversionMultiple()), response.getPort());
-	}
+    CurrencyConversion response = proxy.retrieveExchangeValue(from, to);
+    logger.info("{}", response);
+
+    return new CurrencyConversion(from, to, response.getConversionMultiple(), quantity,
+        quantity.multiply(response.getConversionMultiple()), response.getPort());
+  }
 }
